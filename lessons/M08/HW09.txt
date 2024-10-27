@@ -1,0 +1,126 @@
+     1	#Task 1
+     2	
+     3	import pandas as pd
+     4	
+     5	class BookLover:
+     6	    def __init__(self, name, email, fav_genre, num_books=0, book_list=None):
+     7	        self.name = name                  # Name of the person
+     8	        self.email = email                # Unique email identifier
+     9	        self.fav_genre = fav_genre        # Favorite book genre
+    10	        self.num_books = num_books        # Number of books read
+    11	        self.book_list = book_list if book_list is not None else pd.DataFrame({'book_name': [], 'book_rating': []})
+    12	
+    13	    # Method 1: Add a book if it doesn't already exist in book_list
+    14	    def add_book(self, book_name, rating):
+    15	        if self.book_list['book_name'].eq(book_name).any():
+    16	            print(f"{book_name} is already in the book list.")
+    17	        else:
+    18	            new_book = pd.DataFrame({'book_name': [book_name], 'book_rating': [rating]})
+    19	            self.book_list = pd.concat([self.book_list, new_book], ignore_index=True)
+    20	            self.num_books += 1
+    21	
+    22	    # Method 2: Check if the person has read a particular book
+    23	    def has_read(self, book_name):
+    24	        return (self.book_list['book_name'] == book_name).any()
+    25	
+    26	    # Method 3: Return the total number of books read
+    27	    def num_books_read(self):
+    28	        return self.num_books
+    29	
+    30	    # Method 4: Return a filtered list of favorite books with ratings > 3
+    31	    def fav_books(self):
+    32	        return self.book_list[self.book_list['book_rating'] > 3]
+    33	
+    34	# Testing the class
+    35	if __name__ == '__main__':
+    36	    test_object = BookLover("Han Solo", "hsolo@millenniumfalcon.com", "scifi")
+    37	    test_object.add_book("War of the Worlds", 4)
+    38	    test_object.add_book("1984", 5)
+    39	    test_object.add_book("War of the Worlds", 4)  # Should not add again
+    40	    print("Books read:", test_object.num_books_read())
+    41	    print("Has read '1984':", test_object.has_read("1984"))
+    42	    print("Favorite books:\n", test_object.fav_books())
+    43	
+    44	
+    45	    
+    46	#Task 2
+    47	
+    48	import unittest
+    49	from booklover import BookLover
+    50	import pandas as pd
+    51	
+    52	class BookLoverTestSuite(unittest.TestCase):
+    53	    
+    54	    def test_1_add_book(self): 
+    55	        # Create a BookLover instance and add a book
+    56	        book_lover = BookLover("Tom", "tom@gmail.com", "fiction")
+    57	        book_lover.add_book("Hunger Games", 5)
+    58	        
+    59	        # Test if the book was added to book_list
+    60	        self.assertTrue("Hunger Games" in book_lover.book_list['book_name'].values)
+    61	    
+    62	    def test_2_add_book_twice(self):
+    63	        # Create a BookLover instance and add the same book twice
+    64	        book_lover = BookLover("Tom", "tom@gmail.com", "fiction")
+    65	        book_lover.add_book("Hunger Games", 5)
+    66	        book_lover.add_book("Hunger Games", 5)  # Attempt to add the same book again
+    67	        
+    68	        # Test that the book is only in book_list once
+    69	        self.assertEqual(book_lover.book_list['book_name'].value_counts().get("Hunger Games", 0), 1)
+    70	                
+    71	    def test_3_has_read(self): 
+    72	        # Create a BookLover instance and add a book
+    73	        book_lover = BookLover("Tom", "tom@gmail.com", "fiction")
+    74	        book_lover.add_book("Hunger Games", 5)
+    75	        
+    76	        # Test if has_read returns True for the book
+    77	        self.assertTrue(book_lover.has_read("Hunger Games"))
+    78	        
+    79	    def test_4_has_not_read(self): 
+    80	        # Create a BookLover instance without adding any books
+    81	        book_lover = BookLover("Tom", "tom@gmail.com", "fiction")
+    82	        
+    83	        # Test if has_read returns False for a book not in the list
+    84	        self.assertFalse(book_lover.has_read("The Great Gatsby"))
+    85	        
+    86	    def test_5_num_books_read(self): 
+    87	        # Create a BookLover instance and add books
+    88	        book_lover = BookLover("Tom", "tom@gmail.com", "fiction")
+    89	        book_lover.add_book("Hunger Games", 5)
+    90	        book_lover.add_book("To Kill a Mockingbird", 4)
+    91	        book_lover.add_book("The Catcher in the Rye", 3)
+    92	        
+    93	        # Test if num_books matches the expected count
+    94	        self.assertEqual(book_lover.num_books_read(), 3)
+    95	
+    96	    def test_6_fav_books(self):
+    97	        # Create a BookLover instance and add books with various ratings
+    98	        book_lover = BookLover("Tom", "tom@gmail.com", "fiction")
+    99	        book_lover.add_book("Hunger Games", 5)
+   100	        book_lover.add_book("To Kill a Mockingbird", 4)
+   101	        book_lover.add_book("The Catcher in the Rye", 3)
+   102	        book_lover.add_book("The Great Gatsby", 2)
+   103	        
+   104	        # Get favorite books with rating > 3
+   105	        fav_books = book_lover.fav_books()
+   106	        
+   107	        # Test if the favorite books have rating > 3
+   108	        self.assertTrue(all(fav_books['book_rating'] > 3))
+   109	                
+   110	if __name__ == '__main__':
+   111	    unittest.main(verbosity=3)
+   112	
+   113	
+   114	#Task 3
+   115	
+   116	test_1_add_book (__main__.BookLoverTestSuite) ... ok
+   117	test_2_add_book_twice (__main__.BookLoverTestSuite) ... ok
+   118	test_3_has_read (__main__.BookLoverTestSuite) ... ok
+   119	test_4_has_not_read (__main__.BookLoverTestSuite) ... ok
+   120	test_5_num_books_read (__main__.BookLoverTestSuite) ... ok
+   121	test_6_fav_books (__main__.BookLoverTestSuite) ... ok
+   122	
+   123	----------------------------------------------------------------------
+   124	Ran 6 tests in 0.018s
+   125	
+   126	OK
