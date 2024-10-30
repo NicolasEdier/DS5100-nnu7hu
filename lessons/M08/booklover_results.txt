@@ -6,6 +6,6 @@ test_5_num_books_read (__main__.BookLoverTestSuite) ... ok
 test_6_fav_books (__main__.BookLoverTestSuite) ... ok
 
 ----------------------------------------------------------------------
-Ran 6 tests in 0.018s
+Ran 6 tests in 0.019s
 
 OK
