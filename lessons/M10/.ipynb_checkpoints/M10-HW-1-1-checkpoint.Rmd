@@ -1,8 +1,8 @@
 ---
-editor_options:
-  markdown:
-    wrap: 72
-output: pdf_document
+title: "HW10"
+author: "Nicolas Edier"
+date: "10/21/2024"
+output: html_document
 ---
 
 # Metadata
@@ -15,9 +15,9 @@ output: pdf_document
 
 # Student Info
 
-    Name:
-    Ned ID:
-    URL of this file on GitHub:
+    Name: Nicolas Edier
+    Ned ID: nnu7hu
+    URL of this file on GitHub: https://github.com/NicolasEdier/DS5100-nnu7hu/blob/main/lessons/M10/M10-HW-1-1.Rmd
 
 # Instructions
 
@@ -99,7 +99,22 @@ for each bracket. You should end up with columns for the earnings in
 dollars for each bracket, as well as the payout in dollars.
 
 ```{r}
-# CODE HERE
+# Define the progressive schedule
+data <- data.frame(
+  Bracket = 1:4,
+  Quota_Percentage = c(0.40, 0.30, 0.20, 0.10),
+  Rate = c(0.07, 0.10, 0.13, 0.16)
+)
+
+# Define the quarterly quota
+total_quota <- 225000
+
+# Compute the quota and payout for each bracket
+data$Quota_Amount <- data$Quota_Percentage * total_quota
+data$Payout <- data$Quota_Amount * data$Rate
+
+# View the resulting dataframe
+print(data)
 ```
 
 # Task 2
@@ -120,7 +135,27 @@ dataframe do the work.** In your function, match the amount earned to
 the appropriate row in your first dataframe to get the answer.
 
 ```{r}
-# CODE HERE
+# Add cumulative threshold columns
+data$Cumulative_Quota <- cumsum(data$Quota_Amount)
+data$Cumulative_Payout <- cumsum(data$Quota_Amount * data$Rate)
+
+# Define the function
+calculate_payout <- function(fraction_reached) {
+  # Check if the fraction is valid
+  if (fraction_reached < 0 || fraction_reached > 1) {
+    stop("Fraction must be between 0 and 1.")
+  }
+  
+  # Total quota reached
+  quota_reached <- fraction_reached * total_quota
+  
+  # Calculate the payout for each bracket
+  remaining_quota <- pmin(data$Cumulative_Quota, quota_reached)  # Amount of quota reached per bracket
+  payout_per_bracket <- (remaining_quota - c(0, head(remaining_quota, -1))) * data$Rate
+  
+  # Return the total payout
+  return(sum(payout_per_bracket))
+}
 ```
 
 # Task 3
@@ -136,7 +171,20 @@ dataframe. That is, create a dataframe with columns for percent of quota
 earned and payout for that amount.
 
 ```{r}
-# CODE HERE
+# Generate increments from 0 to 1
+increments <- seq(0, 1, by = 0.1)
+
+# Apply the function to calculate payouts for each increment
+payouts <- sapply(increments, calculate_payout)
+
+# Create a dataframe for results
+results <- data.frame(
+  Fraction_Quota_Earned = increments,
+  Payout = payouts
+)
+
+# View the results
+print(results)
 ```
 
 # Task 4
@@ -151,8 +199,21 @@ Hint: for both axes, use the cumulative sums, which you should have
 defined above.
 
 ```{r}
-# CODE HERE
+# Load ggplot2 library
+library(ggplot2)
+
+# Create the plot
+ggplot(data, aes(x = Cumulative_Quota, y = Cumulative_Payout)) +
+  geom_point() +  # Add points
+  geom_line() +   # Add lines
+  labs(
+    title = "Earnings vs. Quota Reached",
+    x = "Quarterly Quota Reached ($)",
+    y = "Amount Earned ($)"
+  ) +
+  theme_minimal()
 ```
+
 # Task 5 
 
 (1 point)
@@ -162,5 +223,17 @@ Using the second dataframe, plot the dollar amount for each increment (x-axis) v
 Again, display the graph using both points and lines.
 
 ```{r}
-# CODE HERE
+# Load ggplot2 library
+library(ggplot2)
+
+# Create the plot using the results dataframe
+ggplot(results, aes(x = Fraction_Quota_Earned * total_quota, y = Payout)) +
+  geom_point() +  # Add points
+  geom_line() +   # Add lines
+  labs(
+    title = "Earnings vs. Fraction of Quota Reached",
+    x = "Dollar Amount of Quota Reached ($)",
+    y = "Amount Earned ($)"
+  ) +
+  theme_minimal()
 ```

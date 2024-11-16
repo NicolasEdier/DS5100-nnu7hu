@@ -17,7 +17,7 @@ output: html_document
 
     Name: Nicolas Edier
     Ned ID: nnu7hu
-    URL of this file on GitHub:
+    URL of this file on GitHub: https://github.com/NicolasEdier/DS5100-nnu7hu/blob/main/lessons/M10/M10-HW-1-1.Rmd
 
 # Instructions
 
